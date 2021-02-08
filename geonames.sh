@@ -187,37 +187,40 @@ function copyData() {
 
 function finalizeData() {
   # Generating indexes
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_countryinfo_geonameid ON countryinfo (geoname_id);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_alternatename_geonameid ON alternatename (geoname_id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_countryinfo_geoname_id ON countryinfo (geoname_id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_alternatename_geoname_id ON alternatename (geoname_id);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_alternatename_iso_lang ON alternatename (iso_lang);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_postalcodes_country_code_postal_code ON postalcodes (country_code, postal_code);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_unlocodes_country_code_code ON unlocodes (country_code, locode);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_unlocodes_country_code_code_locode ON unlocodes (country_code, locode);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_airports_iata ON airports (iata);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_country ON geoname USING btree (country COLLATE pg_catalog.\"default\" ASC NULLS LAST) TABLESPACE pg_default;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_fclass ON geoname USING btree (fclass COLLATE pg_catalog.\"default\" ASC NULLS LAST) TABLESPACE pg_default;"
 
   # Adding PRIMARY contraints
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY geoname ADD CONSTRAINT pk_geonameid PRIMARY KEY (id);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY alternatename ADD CONSTRAINT pk_alternatenameid PRIMARY KEY (id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY geoname ADD CONSTRAINT pk_geoname_id PRIMARY KEY (id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY alternatename ADD CONSTRAINT pk_alternatename_id PRIMARY KEY (id);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY countryinfo ADD CONSTRAINT pk_iso_alpha2 PRIMARY KEY (iso_alpha2);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY continentcodes ADD CONSTRAINT pk_contintentcode PRIMARY KEY (code);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY timezones ADD CONSTRAINT pk_timezoneid PRIMARY KEY (id);"
   # psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY unlocodes ADD CONSTRAINT pk_country_locode PRIMARY KEY (country_code, locode);"
 
   # Adding FOREIGN constraints
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY geoname ADD CONSTRAINT fk_timezone FOREIGN KEY (timezone) REFERENCES timezones(id);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY alternatename ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY admin1codesascii ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY admin2codesascii ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"   
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY countryinfo ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY countryinfo ADD CONSTRAINT fk_continent FOREIGN KEY (continent) REFERENCES continentcodes(code);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY continentcodes ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);" 
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY timezones ADD CONSTRAINT fk_country_code  FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY postalcodes ADD CONSTRAINT fk_country_code FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY airports ADD CONSTRAINT fk_country_code FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY admin2codesascii ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);" 
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY airports ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY airports ADD CONSTRAINT fk_timezone FOREIGN KEY (timezone) REFERENCES timezones(id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY alternatename ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY continentcodes ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY countryinfo ADD CONSTRAINT fk_geonameid FOREIGN KEY (geoname_id) REFERENCES geoname(id);"
+  
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY countryinfo ADD CONSTRAINT fk_continent FOREIGN KEY (continent) REFERENCES continentcodes(code);"
+
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY airports ADD CONSTRAINT fk_country_code FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY postalcodes ADD CONSTRAINT fk_country_code FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY timezones ADD CONSTRAINT fk_country_code  FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"  
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY unlocodes ADD CONSTRAINT fk_country_code  FOREIGN KEY (country_code) REFERENCES countryinfo(iso_alpha2);"
+
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY airports ADD CONSTRAINT fk_timezone FOREIGN KEY (timezone) REFERENCES timezones(id);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY geoname ADD CONSTRAINT fk_timezone FOREIGN KEY (timezone) REFERENCES timezones(id);"
   # Not available due to inconsistence of data
   # psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY geoname ADD CONSTRAINT fk_country_code FOREIGN KEY (country) REFERENCES countryinfo(iso_alpha2);"
   # psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE ONLY airports ADD CONSTRAINT fk_unlocode FOREIGN KEY (country_code, unlocode) REFERENCES unlocodes(country_code, locodes);"
@@ -228,18 +231,18 @@ function finalizeData() {
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX IF NOT EXISTS idx_geoname_name_trgm_gin ON geoname USING gin (f_unaccent(\"name\") COLLATE pg_catalog.\"default\" gin_trgm_ops) TABLESPACE pg_default;";
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX IF NOT EXISTS idx_alternatename_alternate_name_trgm_gin ON alternatename USING gin (f_unaccent(\"alternate_name\") COLLATE pg_catalog."default" gin_trgm_ops) TABLESPACE pg_default;";
 
-  # Calculate geometries
+  # Calculate geometries and indexes
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "UPDATE geoname SET center = ST_SETSRID(ST_MakePoint(longitude, latitude), 4326);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_center ON public.geoname USING gist (center);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_center ON geoname USING gist (center);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "UPDATE postalcodes SET center = ST_SETSRID(ST_MakePoint(longitude, latitude), 4326);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_postalcodes_center ON public.postalcodes USING gist (center);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_postalcodes_center ON postalcodes USING gist (center);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "UPDATE boundingbox SET way = ST_MakeEnvelope(bboxwest, bboxsouth, bboxeast, bboxnorth, 4326);"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_boundingbox_way ON public.boundingbox USING gist (way);"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_boundingbox_way ON boundingbox USING gist (way);"
 
-  # Convert data
+  # Convert data to modern format
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "UPDATE countryinfo SET neighbours_array = string_to_array(neighbours, ','), languages_array = string_to_array(languages, ',');"
 
-  # Clean data
+  # Clean data from redundancy
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE geoname DROP COLUMN alternate_names, DROP COLUMN longitude, DROP COLUMN latitude;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE boundingbox DROP COLUMN bboxwest, DROP COLUMN bboxsouth, DROP COLUMN bboxeast, DROP COLUMN bboxnorth;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE airports DROP COLUMN longitude, DROP COLUMN latitude, DROP COLUMN timezone, DROP COLUMN name;"
