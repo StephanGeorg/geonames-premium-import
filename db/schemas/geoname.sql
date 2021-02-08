@@ -1,0 +1,22 @@
+CREATE TABLE geoname (
+    id              INT,
+    "name"          TEXT,
+    ascii_name      TEXT,
+    alternate_names TEXT,
+    latitude        FLOAT,
+    longitude       FLOAT,
+    fclass          character varying(1) COLLATE pg_catalog."default" NOT NULL,
+    fcode           character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    country         character varying(2) COLLATE pg_catalog."default" NOT NULL,
+    cc2             TEXT,
+    admin1          TEXT,
+    admin2          TEXT,
+    admin3          TEXT,
+    admin4          TEXT,
+    "population"    BIGINT,
+    elevation       INT,
+    gtopo30         INT,
+    timezone        TEXT,
+    modified_date   DATE,
+    center          geometry(Geometry,4326)
+);
