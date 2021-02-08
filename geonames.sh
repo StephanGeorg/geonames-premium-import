@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # TODO:
+# + Add database
 # + Add script params
 # + Add table prefix (geonames_)
 # ✅ Download public data (postCodes, ...)
@@ -248,19 +249,11 @@ function finalizeData() {
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "ALTER TABLE countryinfo RENAME COLUMN languages_array TO languages;"
 }
 
-
 # Add directories
 mkdir -p $TMPPATH
 mkdir -p "$GEONAMES_OUTDIR/$GEONAMES_RELEASE"
 
-
-# getFiles
+getFiles
 initDB
 copyData
 finalizeData
-
-
-
-
-
-echo "----- DONE ( have fun... )"
