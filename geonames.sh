@@ -1,28 +1,13 @@
 #!/bin/bash
 
-# TODO:
-# + Add database
-# + Add script params
-# + Add table prefix (geonames_)
-# ✅ Download public data (postCodes, ...)
-# ✅ Convert fields to array (neighbours, languages, ...)
-# ✅ Remove duplicate data (geoname.alternatename)
-# ✅ Generate Spatial fields and fndexes
-# ✅ Generate trigram and ts_vector indexes and more relations
-# ✅ Import Premium files
-#   ✅ Add boundaries to geoname
-#   ✅ Import airports
-#   ✅ Import locodes
-
-
 # Globals
 PWD="$(pwd)"
 WORKPATH=$PWD
 TMPPATH="$WORKPATH/tmp"
 
 # Geonames config
-GEONAMES_USERNAME=""
-GEONAMES_PASSWORD=""
+# GEONAMES_USERNAME=""
+# GEONAMES_PASSWORD=""
 GEONAMES_SERVER="https://www.geonames.org"
 GEONAMES_COOKIE="geonames_cookie.txt"
 GEONAMES_OUTDIR="$WORKPATH/data/geonames"
@@ -43,7 +28,7 @@ CREATE_TABLES="true"
 export PGOPTIONS="--search_path=${SCHEMA}"
 export PGPASSWORD=$DBPASSWORD
 
-
+# Authenticate and download files
 function download () {
   # Get Session Cookie
   wget --save-cookies "$TMPPATH/$GEONAMES_COOKIE" --quiet \
@@ -63,6 +48,7 @@ function download () {
   fi
 }
 
+# Prepare downloaded files
 function prepare () {
   cd $GEONAMES_OUTDIR/$GEONAMES_RELEASE 
   if [[ $1 == *.zip ]]
@@ -72,28 +58,28 @@ function prepare () {
   fi
   # Some of Geonames files need further preperation  
   case "$1" in
-    iso-languagecodes.txt)
-      mv "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt" "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt.original"
-      tail -n +2 "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt.original" > "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt";
-      rm "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt.original"
-      ;;
+    #iso-languagecodes.txt)
+    #  mv "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt" "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt.original"
+    #  tail -n +2 "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt.original" > "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt";
+    #  rm "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt.original"
+    #  ;;
     countryInfo.txt)
       mv "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/countryInfo.txt" "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/countryInfo.txt.original";
       grep -v '^#' "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/countryInfo.txt.original" > "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/countryInfo.txt";
       rm "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/countryInfo.txt.original"
       ;;
-    timeZones.txt)
-      mv "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt" "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt.original";
-      tail -n +2 "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt.original" > "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt";
-      rm "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt.original"
-      ;;
+    #timeZones.txt)
+    #  mv "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt" "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt.original";
+    #  tail -n +2 "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt.original" > "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt";
+    #  rm "$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt.original"
+    #  ;;
   esac
   cd $WORKPATH
   echo "| $1 has been downloaded";
 }
 
+# Download and prepare all premium und public files
 function getFiles() {
-  # Download and prepare all Premium files
   for GEONAMESFILE in "${GEONAMES_FILES[@]}"; do
     FILEPATH="$PWD/data/geonames/premium/$GEONAMES_RELEASE/$GEONAMESFILE"
     echo $GEONAMESFILE
@@ -109,7 +95,7 @@ function getFiles() {
     fi
   done
 
-  # Download post codes file
+  # Download public post codes file
   cd $GEONAMES_OUTDIR/$GEONAMES_RELEASE 
   mkdir -p postcodes
   cd postcodes
@@ -120,6 +106,7 @@ function getFiles() {
   rm -rf "postcodes"
 }
 
+# Drop all tables
 function drop_tables() {
   psql -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --quiet << EOF
     DROP TABLE IF EXISTS geoname CASCADE;
@@ -154,6 +141,7 @@ function create_tables() {
   psql -h $DBHOST -p $DBPORT -U $DBUSER -d $DATABASE --quiet -f "$WORKPATH/db/schemas/boundingbox.sql"
 }
 
+# Initialize DB, functions, extensions and tables
 function initDB() {
   psql -h $DBHOST -p $DBPORT -U $DBUSER -d $DATABASE --quiet -f "$WORKPATH/db/extensions.sql"
   psql -h $DBHOST -p $DBPORT -U $DBUSER -d $DATABASE --quiet -f "$WORKPATH/db/functions.sql"
@@ -167,14 +155,14 @@ function initDB() {
   fi
 }
 
+# Copying data from files
 function copyData() {  
-  # Copying data from files
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy geoname (id,name,ascii_name,alternate_names,latitude,longitude,fclass,fcode,country,cc2,admin1,admin2,admin3,admin4,population,elevation,gtopo30,timezone,modified_date) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/allCountries.txt' null as '';"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy timezones (country_code,id,GMT_offset,DST_offset,raw_offset) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt' null as '';"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy timezones (country_code,id,GMT_offset,DST_offset,raw_offset) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/timeZones.txt' WITH null as '' DELIMITER E'\t' CSV QUOTE E'\b' HEADER;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy featurecodes (code,name,description) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/featureCodes_en.txt' null as '';"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy admin1codesascii (code,name,name_ascii,geoname_id) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/admin1CodesASCII.txt' null as '';"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy admin2codesascii (code,name,name_ascii,geoname_id) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/admin2Codes.txt' null as '';"
-  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy iso_languagecodes (iso_639_3,iso_639_2,iso_639_1,language_name) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt' null as '';"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy iso_languagecodes (iso_639_3,iso_639_2,iso_639_1,language_name) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/iso-languagecodes.txt' WITH null as '' DELIMITER E'\t' CSV QUOTE E'\b' HEADER;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy countryinfo (iso_alpha2,iso_alpha3,iso_numeric,fips_code,country,capital,area,population,continent,tld,currency_code,currency_name,phone,postal,postal_regex,languages,geoname_id,neighbours,equivalent_fips_code) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/countryInfo.txt' null as '';"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy alternatename (id,geoname_id,iso_lang,alternate_name,is_preferred_name,is_short_name, is_colloquial,is_historic,\"from\",\"to\") from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/alternateNamesV2.txt' null as '';"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "\copy postalcodes (country_code, postal_code,place_name,admin1_name,admin1_code,admin2_name,admin2_code,admin3_name,admin3_code,latitude,longitude,accuracy) from '$GEONAMES_OUTDIR/$GEONAMES_RELEASE/postCodes.txt' WITH NULL as '' DELIMITER E'\t' CSV QUOTE E'\b';"
@@ -185,6 +173,7 @@ function copyData() {
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "INSERT INTO continentcodes (code, name, geoname_id) VALUES ('AF', 'Africa', 6255146),('AS', 'Asia', 6255147),('EU', 'Europe', 6255148),('NA', 'North America', 6255149),('OC', 'Oceania', 6255150),('SA', 'South America', 6255151),('AN', 'Antarctica', 6255152);"
 }
 
+# Finalizing data: constraints, indexes, converting columns, ...
 function finalizeData() {
   # Generating indexes
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_countryinfo_geoname_id ON countryinfo (geoname_id);"

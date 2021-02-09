@@ -1,18 +1,18 @@
 CREATE TABLE airports (
-    iata            character varying(3) COLLATE pg_catalog."default" NOT NULL,
-    icao            character varying(4) COLLATE pg_catalog."default" NOT NULL,
+    iata            character varying(3) COLLATE pg_catalog."default",
+    icao            character varying(4) COLLATE pg_catalog."default",
     "name"          TEXT,
-    fcode           character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    fcode           character varying(10) COLLATE pg_catalog."default",
     admin1_code     TEXT,
     admin2_code     TEXT,
     timezone        TEXT,
     latitude        FLOAT,
     longitude       FLOAT,
-    unlocode        character varying(3) COLLATE pg_catalog."default" NOT NULL,
+    unlocode        character varying(3) COLLATE pg_catalog."default",
     geoname_id      INT,
     city_id	        INT,
     city_name	    TEXT,
-    country_code    character varying(3) COLLATE pg_catalog."default" NOT NULL,
+    country_code    character varying(3) COLLATE pg_catalog."default",
     active          BOOLEAN
 );
 
