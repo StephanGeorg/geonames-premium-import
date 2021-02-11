@@ -1,4 +1,4 @@
-CREATE TABLE alternatename (
+CREATE TABLE ${TABLE_PREFIX}alternatename (
     id                INT,
     geoname_id        INT,
     iso_lang          TEXT,

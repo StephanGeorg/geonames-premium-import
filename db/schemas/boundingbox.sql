@@ -1,4 +1,4 @@
-CREATE TABLE boundingbox (
+CREATE TABLE ${TABLE_PREFIX}boundingbox (
     geoname_id      INT,
     bboxwest        FLOAT,
     bboxsouth       FLOAT,

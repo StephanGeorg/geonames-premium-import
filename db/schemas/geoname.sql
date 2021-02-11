@@ -1,4 +1,4 @@
-CREATE TABLE geoname (
+CREATE TABLE ${TABLE_PREFIX}geoname (
     id              INT,
     "name"          TEXT,
     ascii_name      TEXT,

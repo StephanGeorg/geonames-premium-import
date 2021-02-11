@@ -1,4 +1,4 @@
-CREATE TABLE timezones (
+CREATE TABLE ${TABLE_PREFIX}timezones (
   id            TEXT,
   country_code  character varying(2) COLLATE pg_catalog."default" NOT NULL,
   GMT_offset    NUMERIC(3,1),

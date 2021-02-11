@@ -1,4 +1,4 @@
-CREATE TABLE countryinfo (
+CREATE TABLE ${TABLE_PREFIX}countryinfo (
     iso_alpha2           character varying(2) COLLATE pg_catalog."default" NOT NULL,
     iso_alpha3           character varying(3) COLLATE pg_catalog."default" NOT NULL,
     iso_numeric          INTEGER,

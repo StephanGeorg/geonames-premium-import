@@ -1,4 +1,4 @@
-CREATE TABLE airports (
+CREATE TABLE ${TABLE_PREFIX}airports (
     iata            character varying(3) COLLATE pg_catalog."default",
     icao            character varying(4) COLLATE pg_catalog."default",
     "name"          TEXT,

@@ -1,4 +1,4 @@
-CREATE TABLE postalcodes (
+CREATE TABLE ${TABLE_PREFIX}postalcodes (
   country_code character varying(2) COLLATE pg_catalog."default" NOT NULL,
   postal_code  TEXT,
   place_name   TEXT,
