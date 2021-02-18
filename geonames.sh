@@ -272,7 +272,7 @@ function finalizeData() {
 mkdir -p $TMPPATH
 mkdir -p "$GEONAMES_OUTDIR/$GEONAMES_RELEASE"
 
-# getFiles
+getFiles
 initDB
 copyData
 finalizeData
