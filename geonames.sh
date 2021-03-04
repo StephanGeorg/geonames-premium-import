@@ -211,6 +211,7 @@ function finalizeData() {
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_airports_iata ON ${TABLE_PREFIX}airports (iata);"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_country ON ${TABLE_PREFIX}geoname USING btree (country COLLATE pg_catalog.\"default\" ASC NULLS LAST) TABLESPACE pg_default;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_fclass ON ${TABLE_PREFIX}geoname USING btree (fclass COLLATE pg_catalog.\"default\" ASC NULLS LAST) TABLESPACE pg_default;"
+  psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_fcode ON ${TABLE_PREFIX}geoname USING btree (fcode COLLATE pg_catalog.\"default\" ASC NULLS LAST) TABLESPACE pg_default;"
   psql -e -U $DBUSER -h $DBHOST -p $DBPORT $DATABASE --command "CREATE INDEX idx_geoname_population ON ${TABLE_PREFIX}geoname USING btree (population ASC NULLS LAST) TABLESPACE pg_default;"
 
   # Adding PRIMARY contraints
