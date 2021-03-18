@@ -8,5 +8,6 @@ CREATE TABLE ${TABLE_PREFIX}alternatename (
     is_colloquial     BOOLEAN,
     is_historic       BOOLEAN,
     "from"            TEXT,
-    "to"              TEXT
+    "to"              TEXT,
+    search_vector     tsvector
 );
